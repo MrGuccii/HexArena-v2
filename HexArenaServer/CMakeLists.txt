@@ -12,6 +12,14 @@ set(TARGET_NAME HexArenaServer)
 find_package(OpenSSL REQUIRED)
 find_package(ZLIB REQUIRED)
 
+# Automatically download and include json library
+include(FetchContent)
+FetchContent_Declare(json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.11.3
+)
+FetchContent_MakeAvailable(json)
+
 file(GLOB USOCKETS_SRC
         "external/uWebSockets/uSockets/src/*.c"
         "external/uWebSockets/uSockets/src/eventing/*.c"
@@ -48,7 +56,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE
         ZLIB::ZLIB
         OpenSSL::SSL
         OpenSSL::Crypto
-        # nlohmann_json::nlohmann_json
+        nlohmann_json::nlohmann_json
 )
 
 # Compiler warnings (because we're professionals)

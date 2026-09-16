@@ -34,6 +34,9 @@ private:
     void on_message(WebSocket *ws, std::string_view message, uWS::OpCode op_code);
     void on_close(WebSocket *ws, int code, std::string_view message);
 
+    // Wrappers
+    WebSocket::SendStatus send_to_client(WebSocket *ws, std::string_view message, uWS::OpCode op_code);
+
     // Member variables
     std::string key_file_;
     std::string cert_file_;

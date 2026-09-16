@@ -2,9 +2,10 @@
 // Created by kristof on 9/14/26.
 //
 
-#include <utility>
-
 #include "include/WebSocketServer.hpp"
+
+#include <utility>
+#include <cassert>
 
 WebSocketServer::WebSocketServer(const int port, std::string key_file, std::string cert_file)
     : key_file_(std::move(key_file)), cert_file_(std::move(cert_file)),
@@ -45,7 +46,7 @@ void WebSocketServer::on_open(WebSocket *ws) {
 
     std::cout << "New connection: " << data->user_id << "\n";
 
-    ws->send(R"({"event":"connected","message":"Welcome!"})", uWS::OpCode::TEXT);
+    this->send_to_client(ws, R"({"event":"connected","message":"Welcome!"})", uWS::OpCode::TEXT);
 }
 
 void WebSocketServer::on_message(WebSocket *ws, const std::string_view message,
@@ -56,7 +57,7 @@ void WebSocketServer::on_message(WebSocket *ws, const std::string_view message,
               << "\n";
 
     // Echo it back
-    ws->send(message, op_code);
+    this->send_to_client(ws, message, op_code);
 }
 
 void WebSocketServer::on_close(WebSocket *ws, int code,
@@ -64,6 +65,16 @@ void WebSocketServer::on_close(WebSocket *ws, int code,
     const auto *data = ws->getUserData();
 
     std::cout << "[-] " << data->user_id << " disconnected\n";
+}
+
+WebSocketServer::WebSocket::SendStatus
+WebSocketServer::send_to_client(WebSocket *ws, const std::string_view message, const uWS::OpCode op_code) {
+    assert(ws != nullptr && "Fatal error: WebSocket pointer is null");
+
+    const auto *data = ws->getUserData();
+    std::cout << "[->] Sending message to " << data->user_id << ": " << message << "\n";
+
+    return ws->send(message, op_code);
 }
 
 void WebSocketServer::run() {

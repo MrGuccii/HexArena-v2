@@ -12,7 +12,9 @@ public:
     [[nodiscard]] double x() const;
     [[nodiscard]] double y() const;
 
-    [[nodiscard]] double distance(const Coordinate& other) const;
+    [[nodiscard]] double distance(const Coordinate& other) const noexcept(true);
+
+    bool operator==(const Coordinate& other) const;
 
 private:
     double x_;

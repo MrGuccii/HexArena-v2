@@ -8,12 +8,13 @@
 
 Coordinate::Coordinate(const double x, const double y) : x_(x), y_(y) {};
 
-double Coordinate::x() const { return x_; }
-double Coordinate::y() const { return y_; }
+[[nodiscard]] double Coordinate::x() const { return x_; }
+[[nodiscard]] double Coordinate::y() const { return y_; }
 
-double Coordinate::distance(const Coordinate& other) const {
-    return std::sqrt(
-        std::pow(std::abs(x_ - other.x()), 2)
-        + std::pow(std::abs(y_ - other.y()), 2)
-    );
+[[nodiscard]] double Coordinate::distance(const Coordinate& other) const noexcept(true) {
+    return std::hypot(x_ - other.x(), y_ - other.y());
+}
+
+[[nodiscard]] bool Coordinate::operator==(const Coordinate &other) const {
+    return x_ == other.x_ && y_ == other.y_;
 }

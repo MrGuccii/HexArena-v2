@@ -1,0 +1,17 @@
+[gd_resource type="TileSet" format=3 uid="uid://beddd1kg4jo7s"]
+
+[ext_resource type="Texture2D" uid="uid://da571rstl8lw7" path="res://hex.svg" id="1_yd7tm"]
+
+[sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_04k3i"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_oy245"]
+texture = ExtResource("1_yd7tm")
+texture_region_size = Vector2i(87, 100)
+0:0/next_alternative_id = 3
+0:0/0 = 0
+
+[resource]
+tile_shape = 3
+tile_size = Vector2i(87, 100)
+sources/0 = SubResource("TileSetScenesCollectionSource_04k3i")
+sources/2 = SubResource("TileSetAtlasSource_oy245")

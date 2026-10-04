@@ -5,12 +5,13 @@
 #ifndef HEXARENASERVER_WEBSOCKETSERVER_HPP
 #define HEXARENASERVER_WEBSOCKETSERVER_HPP
 #include "App.h"
+#include "Dispatcher.hpp"
 #include <string>
 
 class WebSocketServer {
 public:
     explicit WebSocketServer(int port, std::string key_file,
-                             std::string cert_file);
+                             std::string cert_file, Dispatcher& dispatcher);
 
     // Run the server (this blocks until shutdown)
     void run();
@@ -18,7 +19,7 @@ public:
 private:
     // Per-connection data- store whatever you need here
     struct SocketData {
-        std::string user_id;
+        uintptr_t user_id;
         uint64_t connected_at;
     };
 
@@ -30,18 +31,19 @@ private:
     // The lifecycle callbacks
     void setup_routes();
     void on_listen(us_listen_socket_t *listen_socket);
-    void on_open(WebSocket *ws);
-    void on_message(WebSocket *ws, std::string_view message, uWS::OpCode op_code);
-    void on_close(WebSocket *ws, int code, std::string_view message);
+    static void on_open(WebSocket *ws) ;
+    static void on_message(WebSocket *ws, std::string_view message, uWS::OpCode op_code) ;
+    static void on_close(WebSocket *ws, int code, std::string_view message);
 
     // Wrappers
-    WebSocket::SendStatus send_to_client(WebSocket *ws, std::string_view message, uWS::OpCode op_code);
+    static WebSocket::SendStatus send_to_client(WebSocket *ws, std::string_view message, uWS::OpCode op_code);
 
     // Member variables
     std::string key_file_;
     std::string cert_file_;
     uWS::SSLApp app_;
     int port_;
+    Dispatcher& dispatcher_;
 };
 
 #endif //HEXARENASERVER_WEBSOCKETSERVER_HPP

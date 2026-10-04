@@ -43,6 +43,8 @@ target_include_directories(app_lib PUBLIC
         external/uWebSockets/uSockets/src
 )
 
+target_link_libraries(app_lib PUBLIC nlohmann_json::nlohmann_json)
+
 add_executable(${TARGET_NAME} src/main.cpp)
 
 target_include_directories(${TARGET_NAME} PRIVATE
@@ -59,7 +61,7 @@ target_link_libraries(${TARGET_NAME} PRIVATE
         nlohmann_json::nlohmann_json
 )
 
-# Compiler warnings (because we're professionals)
+# Compiler warnings
 if(MSVC)
         target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
 else()

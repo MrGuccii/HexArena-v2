@@ -5,7 +5,8 @@ int main() {
     constexpr int PORT = 7000;
 
     try {
-        WebSocketServer server(PORT, "../certs/key.pem", "../certs/cert.pem");
+        Dispatcher dispatcher;
+        WebSocketServer server(PORT, "../certs/key.pem", "../certs/cert.pem", dispatcher);
         server.run();
     } catch (const std::exception &e) {
         std::cerr << "Error: " << e.what() << "\n";

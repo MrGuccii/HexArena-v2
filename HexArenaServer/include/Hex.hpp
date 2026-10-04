@@ -17,6 +17,8 @@ public:
 
     [[nodiscard]] int distance(const Hex& other) const;
 
+    bool operator==(const Hex& other) const;
+
 private:
     int q_;
     int r_;

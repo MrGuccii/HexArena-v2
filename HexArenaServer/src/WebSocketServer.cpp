@@ -7,13 +7,13 @@
 #include <utility>
 #include <cassert>
 
-WebSocketServer::WebSocketServer(const int port, std::string key_file, std::string cert_file)
+WebSocketServer::WebSocketServer(const int port, std::string key_file, std::string cert_file, Dispatcher& dispatcher)
     : key_file_(std::move(key_file)), cert_file_(std::move(cert_file)),
       app_({
         .key_file_name = key_file_.c_str(),
         .cert_file_name = cert_file_.c_str(),
       }),
-      port_(port) {
+      port_(port), dispatcher_(dispatcher) {
     setup_routes();
 }
 
@@ -21,12 +21,12 @@ void WebSocketServer::setup_routes() {
     app_.ws<SocketData>(
         "/*",
         {
-            .open = [this](auto *ws) { this->on_open(ws); },
-            .message = [this](auto *ws, std::string_view msg, uWS::OpCode op_code) {
-                this->on_message(ws, msg, op_code);
+            .open = [](auto *ws) { WebSocketServer::on_open(ws); },
+            .message = [](auto *ws, std::string_view msg, uWS::OpCode op_code) {
+                WebSocketServer::on_message(ws, msg, op_code);
             },
-            .close = [this](auto *ws, int code, std::string_view msg) {
-                this->on_close(ws, code, msg);
+            .close = [](auto *ws, int code, std::string_view msg) {
+                WebSocketServer::on_close(ws, code, msg);
             }
         }
     );
@@ -41,12 +41,12 @@ void WebSocketServer::setup_routes() {
 void WebSocketServer::on_open(WebSocket *ws) {
     auto *data = ws->getUserData();
 
-    data->user_id = std::to_string(reinterpret_cast<uintptr_t>(ws));
+    data->user_id = reinterpret_cast<uintptr_t>(ws);
     data->connected_at = std::chrono::system_clock::now().time_since_epoch().count();
 
     std::cout << "New connection: " << data->user_id << "\n";
 
-    this->send_to_client(ws, R"({"event":"connected","message":"Welcome!"})", uWS::OpCode::TEXT);
+    WebSocketServer::send_to_client(ws, R"({"event":"connected","message":"Welcome!"})", uWS::OpCode::TEXT);
 }
 
 void WebSocketServer::on_message(WebSocket *ws, const std::string_view message,
@@ -57,7 +57,7 @@ void WebSocketServer::on_message(WebSocket *ws, const std::string_view message,
               << "\n";
 
     // Echo it back
-    this->send_to_client(ws, message, op_code);
+    WebSocketServer::send_to_client(ws, message, op_code);
 }
 
 void WebSocketServer::on_close(WebSocket *ws, int code,
@@ -78,7 +78,7 @@ WebSocketServer::send_to_client(WebSocket *ws, const std::string_view message, c
 }
 
 void WebSocketServer::run() {
-    app_.listen(port_, [this](auto *socket) {
+    app_.listen(port_, [this](const auto *socket) {
         if (socket) {
             std::cout << "\nWebSocket server listening on port " << port_ << "\n";
             std::cout << "WSS endpoint: wss://localhost:" << port_ << "\n";
